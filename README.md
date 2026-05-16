@@ -1,38 +1,62 @@
 # LEVA Execution Workflow
 
-A lightweight execution workflow for structured LLM-assisted development using external state.
+![Workflow](./workflow.png)
 
-LEVA is not a tool, framework, or system.
-It is a **tool-agnostic execution workflow that structures how humans interact with LLMs under context constraints**.
+A lightweight execution workflow for structured human-LLM collaboration using external state.
 
-## Problem Statement
+LEVA is not a framework, an autonomous agent system, or a specification standard. It is a lightweight, tool-agnostic workflow that helps structure iterative collaboration between humans and LLMs within an execution context and constraints.
 
-When working with LLMs in real development workflows, especially in token-constrained environments, several issues frequently appear:
+Rather than attempting to replace developer workflows with rigid automation, LEVA focuses on creating a simple, easy-to-learn execution structure that supports a variety of working styles with AI tools.
 
-- **Over-prompting**: too much instruction in a single request
-- **Context flooding**: irrelevant or excessive context reduces model focus
-- **Blind execution**: output is trusted without verification
+# Why LEVA Exists
 
-These issues lead to:
+As LLMs become increasingly integrated into software development workflows, many developers encounter recurring problems with long-running AI-assisted tasks:
+
+- too many prompts
+- context overload
+- hidden conversation states
+- inconsistent execution continuity
+- blind trust in the resulting output
+
+In practice, adding more context often reduces execution quality rather than improving it.
+
+These problems typically result in:
+
+- noisy or unfocused output
+- difficulty resuming between sessions
+- inconsistent multi-step execution
+- reduced traceability
 - inefficient token usage
-- inconsistent or untraceable outputs
-- difficulty managing multi-step development tasks
+
+LEVA emerged from iterative experiments in real-world development workflows as an attempt to structure these interactions more explicitly.
 
 ## Core Idea
 
-LEVA introduces a structured execution loop:
+LEVA approaches AI-assisted development as a state management problem, not just a prompting problem.
+
+Instead of relying on large prompts or rigid specification systems, LEVA externalizes execution state into lightweight artifacts like Markdown files.
+
+The workflow is built around a simple iterative loop:
 
 > **List → Execute → Validate → Adjust**
 
-Instead of treating LLM interaction as single-shot prompting, LEVA treats it as a **stateful, iterative workflow supported by external artifacts (e.g. Markdown files)**.
+This creates a lightweight execution cycle where state becomes:
+
+- inspectable
+- progressable
+- human-readable
+- model-readable
+- independent of a single conversation session
 
 ## Key Principle
 
-> LEVA does not improve the model. It structures human–LLM interaction through externalized state and iterative execution.
+> LEVA does not improve the model. It structures how humans manage execution, context, and validation while collaborating with LLMs.
 
 ## Workflow Overview
 
-LEVA is not strictly linear. It is a **state-driven loop**.
+LEVA is not strictly linear.
+
+It works more like a state-based execution loop:
 
 ```mermaid
 flowchart TD
@@ -48,174 +72,217 @@ flowchart TD
 
 ### 1. List
 
-Break down the problem into structured tasks.
+Break problems into smaller, explicit execution units.
 
-- Analyze requirements or codebase
-- Decompose into actionable units
-- Store in external artifact (e.g. apis.md)
+Examples:
+
+- API routes
+- models
+- validation rules
+- tests
+- refactoring tasks
+
+Tasks are stored in lightweight external artifacts such as:
+
+- `tasks/index.md`
+- `apis.md`
+- `tests.md`
+
+The goal is not rigid planning, but scoped execution clarity.
 
 Example:
 
 ```
-From the existing models in the codebase, create a route structure in apis.md.
+Create route structure from existing models and store it in apis.md
 ```
 
 ### 2. Execute
 
-Execute tasks one at a time.
+Execute one scoped task at a time.
 
-- Focus on a single task only
-- Keep context minimal
-- Produce scoped output
+Principles:
 
-Important:
-
-After execution, task state may be updated optimistically (e.g. marked as completed), even before validation.
+- minimize active context
+- avoid unrelated tasks
+- keep execution bounded
+- reduce context noise
 
 Example:
 
 ```
-Just create User Management routes from apis.md
+Implement only User Management routes from apis.md
 ```
+
+LEVA intentionally favors smaller iterative execution over large multi-feature prompts.
 
 ### 3. Validate
 
-Verify execution results outside the LLM.
+Execution results must be validated outside the model.
 
-Validation methods include:
+Validation may include:
 
-- automated tests (e.g. `php artisan test)`
-- runtime checks
-- manual review
+- automated tests
+- runtime verification
+- static analysis
+- manual inspection
 
-This step ensures correctness is grounded in system reality, not model output.
+Examples:
+
+- `pytest`
+- `php artisan test`
+- API verification
+- CLI execution checks
+
+This step grounds correctness in system reality rather than conversational confidence.
 
 ### 4. Adjust
 
-Reconcile system state based on validation results.
+Update workflow state based on validation results.
 
-- Confirm or revert optimistic updates
-- Fix incorrect task status
-- Re-open failed tasks if necessary
-- Refine remaining task structure
+Possible actions:
+
+- confirm completed tasks
+- reopen failed tasks
+- refine remaining task structures
+- correct optimistic execution assumptions
 
 Example:
 
 ```
-Continue create Schedule Management routes from apis.md
+Continue Schedule Management routes after fixing validation failures
 ```
+This creates iterative state reconciliation between:
+
+- intended execution
+- generated output
+- actual system behavior
 
 ## State Model
 
-LEVA uses a hybrid state model:
+LEVA uses a lightweight hybrid state model.
 
-### Optimistic State (Post-Execute)
+### Optimistic State
 
-- tasks may be marked as completed
-- fast iteration
-- temporary assumption of correctness
+Immediately after execution:
 
-### Confirmed State (Post-Validate)
-- validation confirms or rejects execution
-- state is corrected if needed
-- final truth is synchronized
+- tasks may temporarily be marked as completed
+- execution continues quickly
+- correctness is assumed provisionally
 
-> This model enables fast progress without losing correctness guarantees.
+### Confirmed State
 
-## Workflow Diagram
+After validation:
+
+- task status is verified
+- failed execution is corrected
+- state is synchronized with reality
+
+This enables fast iteration without fully sacrificing correctness.
+
+## Workflow Evolution
+
+LEVA did not begin as a complete system design.
+
+The workflow evolved iteratively through repeated experimentation:
 
 ```mermaid
-flowchart TD
-    Intent --> List
-    List --> TaskFile["apis.md<br/>External State"]
-    TaskFile --> Execute["Execute Task<br/>Single Unit Implementation"]
-    Execute --> Optimistic["Optimistic State Update<br/>(Temporary Completion)"]
-    Optimistic --> Validate["Validate<br/>Test / Inspect / Verify"]
-    Validate --> Adjust["Adjust<br/>State Reconciliation"]
-    Adjust --> List
+flowchart LR
+    A["Single<br/>Prompts"]
+        --> B["Artifact-Based<br/>Context"]
+
+    B --> C["Scoped<br/>Execution"]
+
+    C --> D["tasks/index.md"]
+
+    D --> E["Explicit<br/>Execution State"]
+
+    E --> F["Validation-Driven<br/>Reconciliation"]
 ```
 
-## Example Use Case (Laravel)
+Many workflow rules emerged from practical failures during real AI-assisted development sessions.
 
-1. Generate task breakdown:
+For example:
 
-- models.md
-- apis.md
-- tests.md
+```
+Do not read files in tasks/done/
+```
 
-2. Execute sequentially:
+This rule emerged after observing that tasks completed in the past could pollute the active execution context and reduce focus on output.
+
+## Example Use Case
+
+A typical iterative workflow may include:
+
+### Task Breakdown
+
+- `models.md`
+- `apis.md`
+- `tests.md`
+- `tasks/index.md`
+
+### Sequential Execution
 
 - implement model layer
-- then API layer
-- then tests
+- implement API layer
+- generate tests
+- refactor incrementally
 
-3. Validate:
+### Validation
 
-- run `php artisan test`
-- manual API verification
-
-4. Adjust:
-
-- correct task status
-- re-plan failed tasks
-- sync progress in Markdown artifacts
-
-## When to Use LEVA
-
-- ✔ Multi-step development tasks
-- ✔ Codebase refactoring
-- ✔ AI-assisted debugging
-- ✔ Token-constrained environments
-- ✔ Iterative feature development
-
-## When NOT to Use LEVA
-
-- ✘ Simple one-shot prompts
-- ✘ Quick rewriting tasks
-- ✘ Brainstorming or ideation
-- ✘ Fully automated CI/CD pipelines
+- run automated tests
+- inspect runtime behavior
+- verify API outputs
 
 
-## Comparison
+## Reconciliation
 
-### One-shot prompting (CREATE-style)
+- update task status
+- reopen failed tasks
+- adjust remaining execution plan
 
-- single-pass execution
-- high context usage
-- low controllability
+## When LEVA Works Well
 
-### Spec-driven systems (OpenSpec)
+LEVA is particularly useful for:
 
-- formal system design
-- strong structure enforcement
-- heavier tooling layer
+- multi-step development tasks
+- iterative feature development
+- AI-assisted debugging
+- refactoring workflows
+- token-constrained environments
+- long-running development sessions
 
+## When LEVA Is Less Suitable
 
-### LEVA Execution Workflow
+LEVA is not designed for:
 
-- lightweight execution layer
-- externalized state via artifacts
-- focuses on interaction control, not system design
-
-## Limitations
-
-LEVA requires:
-
-- discipline in maintaining external artifacts
-- correct task granularity
-- consistent validation practices
-
-It is not suitable for:
-
-- fully automated systems
+- one-shot prompting
+- fully autonomous systems
+- highly exploratory brainstorming
 - zero-overhead interactions
-- highly exploratory prompting
+- rigid specification enforcement
+
+## Relationship to Spec-Driven Development
+
+LEVA does not reject structured planning.
+
+However, it intentionally avoids highly rigid specification-driven workflows.
+
+Developers work differently:
+
+- iteratively
+- conversationally
+- incrementally
+- experimentally
+
+LEVA aims to provide lightweight execution structure without forcing a single style of thinking or development.
+
+The goal is not to replace human workflows, but to support them.
 
 ## Philosophy
 
-LEVA is based on a simple principle:
+LEVA is based on a simple observation:
 
-> The quality of LLM-assisted development is determined not only by the model, but by the structure of interaction and state management.
+> The quality of AI-assisted development depends not only on model capability, but also on how humans structure execution, context, and state management.
 
 ## License
 
